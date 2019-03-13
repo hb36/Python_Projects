@@ -160,29 +160,29 @@ class GameField(object):  # 创建棋盘
 
 def main(stdscr):
     def init():
-        # todo:初始化游戏界面  -->完成
+        # 初始化游戏界面  -->完成
         field.reset()
         return 'Gaming'
 
     def game():
-        # todo:绘制游戏界面   -->完成
+        # 绘制游戏界面   -->完成
         field.draw(stdscr)
-        action = get_user_action(stdscr)  # todo:用户输入操作     -->完成
+        action = get_user_action(stdscr)  # 用户输入操作     -->完成
         if action == 'Restart':
             return 'Init'
         if action == 'Quit':
             return 'Quit'
         if field.move(action):
-            if field.is_win():  # todo:胜利条件 -->完成
+            if field.is_win():  # 胜利条件 -->完成
                 return 'Win'
-            if field.is_gameover():  # todo:失败条件   -->完成
+            if field.is_gameover():  # 败条件   -->完成
                 return 'Fail'
         return 'Gaming'  # 游戏继续
 
     def not_game(state):
-        # todo:根据状态绘制游戏胜利或失败界面  -->完成
+        # 根据状态绘制游戏胜利或失败界面  -->完成
         field.draw(stdscr)
-        action = get_user_action(stdscr)  # todo:用户输入 -->完成
+        action = get_user_action(stdscr)  # 用户输入 -->完成
         # 除非用户输入Restart或Quit，其他输入动作不改变当前状态
         responses = defaultdict(lambda: state)
         responses['Restart'], responses['Quit'] = 'Init', 'Quit'
