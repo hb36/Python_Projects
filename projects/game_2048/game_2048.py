@@ -145,15 +145,15 @@ class Screen(object):
         self.screen.addstr(string + '\n')
 
     def draw_row(self, row):
-        self.cast(''.join('|{: ^6}'.format(num) if num > 0 else '|      ' for num in row) + '|')
+        self.cast(' ' + ''.join('|{: ^6}'.format(num) if num > 0 else '|      ' for num in row) + '|')
 
     def draw(self):
         self.screen.clear()
-        self.cast('SCORE: ' + str(self.score))
+        self.cast(' SCORE: ' + str(self.score))
         for row in self.grid.cells:
-            self.cast('+------' * self.grid.size + '+')
+            self.cast(' ' + '+------' * self.grid.size + '+')
             self.draw_row(row)
-        self.cast('+------' * self.grid.size + '+')
+        self.cast(' ' + '+------' * self.grid.size + '+')
 
         if self.win:
             self.cast(self.win_string)
@@ -224,19 +224,19 @@ class GameManager(object):
                 return 'over'
         return 'game'
 
-    def _restart_or_exit(self):
+    def state_restart_or_exit(self):
         self.screen.draw()
         if self.action.get() == Action.RESTART:
             return 'init'
         elif self.action.get() == Action.EXIT:
             return 'exit'
-        # return 'init' if self.action.get() == Action.RESTART else 'exit'
+            # return 'init' if self.action.get() == Action.RESTART else 'exit'
 
     def state_win(self):
-        return self._restart_or_exit()
+        return self.state_restart_or_exit()
 
     def state_over(self):
-        return self._restart_or_exit()
+        return self.state_restart_or_exit()
 
     def __call__(self, stdscr):
         curses.use_default_colors()
