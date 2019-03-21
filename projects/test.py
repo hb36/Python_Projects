@@ -1,11 +1,8 @@
-import os
+import zipfile
 
-url = 'https://www.shiyanlou.com/courses/1126/Source.zip'
+path = 'E:\Python36\projects\python_challenges\channel\\'
+file_name = '90052'
 
-while True:
-    data = input(">>>")
-    if 10 < len(data):
-        print("over index")
-        break
-    else:
-        print(data)
+zip = zipfile.ZipFile('E:\Python36\projects\python_challenges\channel\channel.zip', 'r')
+
+print(zip.getinfo('90052.txt').comment.decode())

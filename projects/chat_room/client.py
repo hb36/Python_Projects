@@ -57,7 +57,7 @@ class LoginFrame(wx.Frame):
         #         else:
         if self.check_address():
             server_address = self.server_address.GetLineText(0).split(':')
-            con.open(server_address[0], port=int(server_address[1]), timeout=10)
+            con.open(server_address[0], int(server_address[1]), timeout=10)
             response = con.read_some()
             if response != b'Connect Success':
                 self.show_dialog('Error', 'Connect Fail', (200, 100))

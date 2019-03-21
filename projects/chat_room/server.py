@@ -2,7 +2,7 @@
 import asyncore
 import asynchat
 
-PORT = 8080  # 定义端口
+PORT = 6666  # 定义端口
 HOST = '127.0.0.1'
 
 
@@ -56,7 +56,7 @@ class ChatSession(asynchat.async_chat):
         self.room = room
         room.add(self)
 
-    def cellect_income_data(self, data):
+    def collect_income_data(self, data):
         # 接收客户端的数据
         self.data.append(data.decode("utf-8"))
 
