@@ -2,7 +2,6 @@
 strings = ['1', '11']
 
 for i in range(1, 31):
-
     j = 0
     temp = ''
     while j < len(strings[i]):
