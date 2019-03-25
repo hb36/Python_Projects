@@ -1,8 +1,12 @@
-import zipfile
+import os
+from PIL import Image
 
-path = 'E:\Python36\projects\python_challenges\channel\\'
-file_name = '90052'
+img = Image.open('E:\Python36\projects\mosaic_img\\test-data\set1\img-6.png')
 
-zip = zipfile.ZipFile('E:\Python36\projects\python_challenges\channel\channel.zip', 'r')
-
-print(zip.getinfo('90052.txt').comment.decode())
+print(img.size)
+img.thumbnail((20, 20))
+print(img.size)
+img.thumbnail((20, 15))
+print(img.size)
+img.thumbnail((15, 20))
+print(img.size)
