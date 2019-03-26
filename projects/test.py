@@ -1,5 +1,12 @@
-from math import pi
+def test(a):
+    if '.' in a:
+        print('.')
+    else:
+        print('no .')
+        return
 
-string = '12-4312+pi'
-num = eval(string)
-print('%.2f' % num)
+    print('test')
+
+
+test('fsaf')
+test('.32.')
