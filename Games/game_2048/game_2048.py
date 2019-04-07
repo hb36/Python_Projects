@@ -15,7 +15,6 @@ class MainWindow(wx.Window):
 
         self.init_buffer()
         self.init_game()
-        # self.set_menu()
         self.Bind(wx.EVT_SIZE, self.on_size)
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
@@ -37,12 +36,10 @@ class MainWindow(wx.Window):
 
     # 初始化缓存区
     def init_buffer(self):
-        # print("the buffer")
         w, h = self.GetClientSize()
         self.buffer = wx.Bitmap(w, h)
 
     def on_size(self, event):
-        # print("on_size")
         self.init_buffer()
         self.draw_all()
 
@@ -62,48 +59,8 @@ class MainWindow(wx.Window):
                             4096: (237, 207, 114), 8192: (237, 207, 114), 16384: (237, 207, 114),
                             32768: (237, 207, 114), 65536: (237, 207, 114), 131072: (237, 207, 114)}
 
-    # 设置菜单栏
-    def set_menu(self):
-        # 创建菜单栏及菜单,并绑定监听器
-        file_menu_bar = wx.MenuBar()
-        self.SetMenuBar(file_menu_bar)
-        file_menu = wx.Menu()
-        file_menu_bar.Append(file_menu, u"菜单")
-
-        menu_save_game = file_menu.Append(wx.ID_SAVE, "Save game")
-        self.Bind(wx.EVT_MENU, self.on_save_game, menu_save_game, wx.ID_SAVE)
-
-        menu_load_game = file_menu.Append(wx.ID_OPEN, "Load game")
-        self.Bind(wx.EVT_MENU_OPEN, self.on_load_game, menu_load_game)
-
-        file_menu.AppendSeparator()
-        menu_exit = file_menu.Append(wx.ID_EXIT, "Exit game")
-        self.Bind(wx.EVT_MENU_CLOSE, self.on_exit_game, menu_exit)
-
-    # 游戏存档
-    def on_save_game(self):
-        data_str = ''
-        for i in range(ROWS):
-            for j in range(COLS):
-                data_str += (str(self.data[i][j]) + '.')
-        with open('gamefile.ini', 'w', encoding='utf-8')as fw:
-            fw.write(data_str)
-
-    # 游戏读档
-    def on_load_game(self):
-        if os.path.exists('gamefile.ini'):
-            with open('gamefile.ini', 'r', encoding='utf-8')as fr:
-                data_str = fr.read()
-            data_list = data_str.split('.')
-            for i in range(ROWS):
-                for j in range(COLS):
-                    self.data[i][j] = int(data_list[i * 4 + j])
-            self.draw_all()
-        else:
-            wx.MessageDialog(self, u"没有存档", u"提示", style=wx.OK)
-
     # 退出游戏
-    def on_exit_game(self, e):
+    def on_exit_game(self):
         self.on_save_game()
         self.Close(True)
 
@@ -128,14 +85,12 @@ class MainWindow(wx.Window):
 
     # 绘制主界面
     def draw_all(self):
-        # print("draw_all")
         dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
         self.draw_bg(dc)
         self.draw_logo(dc)
         self.draw_hints(dc)
         self.draw_score(dc)
         self.draw_data(dc)
-        # print("draw the game")
 
     # 绘制游戏背景
     def draw_bg(self, dc):
@@ -164,7 +119,6 @@ class MainWindow(wx.Window):
         cur_score_label_board = 15 * 2 + cur_score_label_size[0]
         best_score_label_board = 15 * 2 + best_score_label_size[0]
         cur_score_size = dc.GetTextExtent(str(self.cur_score))
-        # print(self.high_score)
         best_score_size = dc.GetTextExtent(str(self.high_score))
         cur_score_board = 10 + cur_score_size[0]
         best_score_board = 10 + best_score_size[0]
@@ -180,7 +134,7 @@ class MainWindow(wx.Window):
         dc.DrawText(u"得分", 505 - 15 - best_score - 5 - cur_score
                     + (cur_score - cur_score_label_size[0]) / 2, 48)
         dc.SetTextForeground((255, 255, 255))
-        dc.DrawText(str(self.cur_score), 505 - 15 - best_score
+        dc.DrawText(str(self.high_score), 505 - 15 - best_score
                     + (best_score - best_score_size[0]) / 2, 68)
         dc.DrawText(str(self.cur_score),
                     505 - 15 - best_score - 5 - cur_score
@@ -201,11 +155,11 @@ class MainWindow(wx.Window):
                 dc.SetPen(wx.Pen(data_color))
                 dc.DrawRoundedRectangle(30 + col * 115, 165 + row * 115, 100, 100, 2)
                 size = dc.GetTextExtent(str(data))
-                while size[0] > 100 - 15 * 2:
-                    self.data_font = wx.Font(self.data_font.GetPonitSize() * 4 / 5,
-                                             wx.ROMAN, wx.NORMAL, wx.BOLD)
-                    dc.SetFont(self.data_font)
-                    size = dc.GetTextExtent(str(data))
+                # while size[0] > 100 - 15 * 2:
+                #     self.data_font = wx.Font(self.data_font.GetPonitSize() * 4 / 5,
+                #                              wx.ROMAN, wx.NORMAL, wx.BOLD)
+                #     dc.SetFont(self.data_font)
+                #     size = dc.GetTextExtent(str(data))
                 if data != 0:
                     dc.DrawText(str(data), 30 + col * 115 + (100 - size[0]) / 2,
                                 165 + row * 115 + (100 - size[1]) / 2)
@@ -214,180 +168,168 @@ class MainWindow(wx.Window):
     def on_key_down(self, event):
         key_code = event.GetKeyCode()
         if key_code == wx.WXK_UP:
-            if self.can_move_up(self.data):
-                self.on_move_up()
+            self.do_move(self.move_up_down(True))
         elif key_code == wx.WXK_DOWN:
-            if self.can_move_down(self.data):
-                self.on_move_down()
+            self.do_move(self.move_up_down(False))
         elif key_code == wx.WXK_LEFT:
-            if self.can_move_left(self.data):
-                self.on_move_left()
+            self.do_move(self.move_left_right(True))
         elif key_code == wx.WXK_RIGHT:
-            if self.can_move_right(self.data):
-                self.on_move_right()
+            self.do_move(self.move_left_right(False))
 
-        self.is_new_record()
-        self.next_step()
-        self.is_game_over()
-        dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
-        self.draw_data(dc)
-        self.draw_score(dc)
+    def update(self, data_list, direction):
+        score = 0
+        if direction:
+            i = 1
+            while i < len(data_list):
+                if data_list[i - 1] == data_list[i]:
+                    del data_list[i]
+                    data_list[i - 1] *= 2
+                    if data_list[i - 1] > score:
+                        score = data_list[i - 1]
+                    i += 1
+                i += 1
+        else:
+            i = len(data_list) - 1
+            while i > 0:
+                if data_list[i - 1] == data_list[i]:
+                    del data_list[i - 1]
+                    data_list[i - 1] *= 2
+                    if data_list[i - 1] > score:
+                        score = data_list[i - 1]
+                    i -= 1
+                i -= 1
+        return score
 
-    # 判断是否可以向上移动
-    def can_move_up(self, data):
-        for j in range(COLS):
-            for i in range(ROWS - 1):
-                if data[i][j] == 0 and data[i + 1][j] != 0:
-                    return True
-                if data[i][j] == data[i + 1][j] and data[i][j] != 0:
-                    return True
-        return False
+    def move_up_down(self, up):
+        old_datas = copy.deepcopy(self.data)
+        for col in range(COLS):
+            valid_data = [self.data[row][col] for row in range(ROWS) if self.data[row][col] != 0]
+            if len(valid_data) >= 2:
+                score = self.update(valid_data, up)
+                if score > self.cur_score:
+                    self.cur_score = score
+            for i in range(ROWS - len(valid_data)):
+                if up:
+                    valid_data.append(0)
+                else:
+                    valid_data.insert(0, 0)
+            for row in range(ROWS):
+                self.data[row][col] = valid_data[row]
+        return old_datas != self.data
 
-    # 判断是否可以向下移动
-    def can_move_down(self, data):
-        for j in range(COLS):
-            for i in range(ROWS - 1, 1, -1):
-                if data[i][j] == 0 and data[i - 1][j] != 0:
-                    return True
-                if data[i][j] == data[i - 1][j] and data[i][j] != 0:
-                    return True
-        return False
+    def move_left_right(self, left):
+        old_data = copy.deepcopy(self.data)
+        for row in range(ROWS):
+            valid_data = [self.data[row][col] for col in range(COLS) if self.data[row][col] != 0]
+            if len(valid_data) >= 2:
+                score = self.update(valid_data, left)
+                if score > self.cur_score:
+                    self.cur_score = score
+            for i in range(COLS - len(valid_data)):
+                if left:
+                    valid_data.append(0)
+                else:
+                    valid_data.insert(0, 0)
+            for col in range(COLS):
+                self.data[row][col] = valid_data[col]
+        return old_data != self.data
 
-    # 判断是否可以向左移动
-    def can_move_left(self, data):
-        for i in range(ROWS):
-            for j in range(COLS - 1):
-                if data[i][j] == 0 and data[i][j + 1] != 0:
-                    return True
-                if data[i][j] == data[i][j + 1] and data[i][j] != 0:
-                    return True
-        return False
-
-    # 判断是否可以向右移动
-    def can_move_right(self, data):
-        for i in range(ROWS):
-            for j in range(COLS - 1, 1, -1):
-                if data[i][j] == 0 and data[i][j - 1] != 0:
-                    return True
-                if data[i][j] == data[i][j - 1] and data[i][j] != 0:
-                    return True
-        return False
-
-    # 游戏向左移动
-    def on_move_left(self):
-        for i in range(ROWS):
-            valid_datas = [self.data[i][j] for j in range(COLS) if self.data[i][j] != 0]
-            if len(valid_datas) >= 2:
-                num = 1
-                while num < len(valid_datas):
-                    if valid_datas[num - 1] == valid_datas[num]:
-                        valid_datas[num - 1] *= 2
-                        num += 1
-                        if valid_datas[num - 1] > self.cur_score:
-                            self.cur_score = valid_datas[num - 1]
-                    num += 1
-            for temp in range(COLS - len(valid_datas)):
-                valid_datas.append(0)
-            for j in range(COLS):
-                self.data[i][j] = valid_datas[j]
-
-    # 游戏向右移动
-    def on_move_right(self):
-        for i in range(ROWS):
-            valid_datas = [self.data[i][j] for j in range(COLS) if self.data[i][j] != 0]
-            if len(valid_datas) >= 2:
-                num = len(valid_datas) - 1
-                while num > 0:
-                    if valid_datas[num] == valid_datas[num - 1]:
-                        valid_datas[num] *= 2
-                        num -= 1
-                        if valid_datas[num] > self.cur_score:
-                            self.cur_score = valid_datas[num]
-                        del valid_datas[num - 1]
-                    num -= 1
-            for temp in range(COLS - len(valid_datas)):
-                valid_datas.insert(0, 0)
-            for j in range(COLS):
-                self.data[i][j] = valid_datas[j]
-
-    # 游戏向上移动
-    def on_move_up(self):
-        for j in range(COLS):
-            valid_datas = [self.data[i][j] for i in range(ROWS) if self.data[i][j] != 0]
-            if len(valid_datas) >= 2:
-                num = 1
-                while num < len(valid_datas):
-                    if valid_datas[num] == valid_datas[num - 1]:
-                        valid_datas[num - 1] *= 2
-                        num += 1
-                        if valid_datas[num] > self.cur_score:
-                            self.cur_score = valid_datas[num]
-                        del valid_datas[num]
-                    num += 1
-            for temp in range(ROWS - len(valid_datas)):
-                valid_datas.append(0)
-            for i in range(ROWS):
-                self.data[i][j] = valid_datas[i]
-
-    # 游戏向下移动
-    def on_move_down(self):
-        for j in range(COLS):
-            valid_datas = [self.data[i][j] for i in range(ROWS) if self.data[i][j] != 0]
-            if len(valid_datas) >= 2:
-                num = len(valid_datas) - 1
-                while num > 0:
-                    if valid_datas[num] == valid_datas[num - 1]:
-                        valid_datas[num] *= 2
-                        if valid_datas[num] > self.cur_score:
-                            self.cur_score = valid_datas[num]
-                        del valid_datas[num - 1]
-                        num -= 1
-                    num -= 1
-            for temp in range(ROWS - len(valid_datas)):
-                valid_datas.insert(0, 0)
-            for i in range(ROWS):
-                self.data[i][j] = valid_datas[i]
+    def do_move(self, move):
+        if move:
+            self.is_new_record()
+            self.next_step()
+            dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
+            self.draw_data(dc)
+            self.draw_score(dc)
+            self.is_game_over()
 
     # 若打破最高分的纪录，存储新的纪录
     def is_new_record(self):
         if self.cur_score > self.high_score:
             self.high_score = self.cur_score
             self.save_record()
-            wx.MessageDialog(None, u"新纪录 " + str(self.high_score), style=wx.OK or wx.ICON_INFORMATION)
+            # wx.MessageDialog(None, u"新纪录 " + str(self.high_score), style=wx.OK or wx.ICON_INFORMATION)
 
     # 判断游戏结束
     def is_game_over(self):
-        if not self.can_move_left(self.data) and not self.can_move_right(self.data) \
-                and not self.can_move_up(self.data) and not self.can_move_down(self.data):
+        copy_data = copy.deepcopy(self.data)
+        if not self.move_left_right(True) and not self.move_left_right(False) \
+                and not self.move_up_down(True) and not self.move_up_down(False):
             dlg = wx.MessageDialog(None, u"游戏结束，再来一局？", style=wx.YES_NO or wx.YES_DEFAULT or wx.ICON_QUESTION)
             result = dlg.ShowModal()
             if result == wx.ID_YES:
                 self.init_game()
-            # elif result == wx.ID_NO:
-            #     self.on_exit_game()
+            elif result == wx.ID_NO:
+                self.on_exit_game()
             dlg.Destroy()
         else:
-            return
+            self.data = copy_data
 
 
 class Frame(wx.Frame):
     def __init__(self, title):
         super(Frame, self).__init__(None, -1, title, style=wx.DEFAULT_FRAME_STYLE ^ wx.MAXIMIZE_BOX ^
                                                            wx.RESIZE_BORDER)
-        # print("start the frame")
         self.SetIcon(wx.Icon('icon.jpg'))
+        self.set_menu()
         self.window = MainWindow(self)
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
+    # 设置菜单栏
+    def set_menu(self):
+        # 创建菜单栏及菜单,并绑定监听器
+        file_menu_bar = wx.MenuBar()
+        self.SetMenuBar(file_menu_bar)
+        file_menu = wx.Menu()
+        file_menu_bar.Append(file_menu, u"surprise")
+
+        menu_save_game = file_menu.Append(wx.ID_SAVE, "存档")
+        file_menu.AppendSeparator()
+        menu_load_game = file_menu.Append(wx.ID_OPEN, "读档")
+        file_menu.AppendSeparator()
+        file_menu.Append(wx.ID_SETUP, u"重新开始")
+
+        self.Bind(wx.EVT_MENU, self.handle_menu)
+
+    def handle_menu(self, event):
+        id = event.GetId()
+        if id == wx.ID_SAVE:
+            self.on_save_game(event)
+        if id == wx.ID_OPEN:
+            self.on_load_game(event)
+        if id == wx.ID_SETUP:
+            self.window.init_game()
+
+    # 游戏存档
+    def on_save_game(self, event):
+        data_str = ''
+        for i in range(ROWS):
+            for j in range(COLS):
+                data_str += (str(self.window.data[i][j]) + '.')
+        with open('gamefile.ini', 'w', encoding='utf-8')as fw:
+            fw.write(data_str)
+
+    # 游戏读档
+    def on_load_game(self, event):
+        if os.path.exists('gamefile.ini'):
+            with open('gamefile.ini', 'r', encoding='utf-8')as fr:
+                data_str = fr.read()
+            data_list = data_str.split('.')
+            for i in range(ROWS):
+                for j in range(COLS):
+                    self.window.data[i][j] = int(data_list[i * 4 + j])
+            self.window.draw_all()
+        else:
+            wx.MessageDialog(self, u"没有存档", u"提示", style=wx.OK)
+
     def on_close(self, event):
-        self.window.on_save_game()
+        self.on_save_game(event)
         self.Destroy()
 
 
 class APP(wx.App):
     def on_init(self):
         self.frame = Frame(title=u"2048 v1.0 by hb")
-        # print("start the app")
         self.frame.SetClientSize((505, 720))
         self.frame.Center()
         self.frame.Show(True)
