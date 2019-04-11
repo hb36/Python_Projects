@@ -1,12 +1,4 @@
-def test(a):
-    if '.' in a:
-        print('.')
-    else:
-        print('no .')
-        return
+import random
 
-    print('test')
-
-
-test('fsaf')
-test('.32.')
+position = {'x': random.randrange(-10, 918), 'y': random.randrange(-10, 520)}
+print(position)
