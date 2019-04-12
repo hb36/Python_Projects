@@ -11,13 +11,13 @@ class ServerException(Exception):
 
 
 class BaseCase(object):
-    def handle_file(self, handler, path):
+    def handle_file(self, handler, full_path):
         try:
-            with open(path, 'rb')as fr:
+            with open(full_path, 'rb')as fr:
                 content = fr.read()
             handler.send_content(content)
         except IOError as msg:
-            msg = "'{0}' cannot be read: {1}".format(path, msg)
+            msg = "'{0}' cannot be read: {1}".format(full_path, msg)
             handler.handle_error(msg)
 
     def index_path(self, handler):
@@ -37,18 +37,14 @@ class CaseNoFile(BaseCase):
         return not os.path.exists(handler.full_path)
 
     def act(self, handler):
-        raise ServerException("'{0}' not found".format(handler.full_path))
+        raise ServerException("'{0}' not found".format(handler.path))
 
 
 class CaseCgiFile(BaseCase):
     '''可执行脚本'''
 
     def run_cgi(self, handler):
-        # data = subprocess.check_output(["python3", handler.full_path], shell=False)
-        cmd = "python" + handler.full_path
-        chlid_stdin, child_stdout = os.popen2(cmd)
-        chlid_stdin.close()
-        data = child_stdout.read()
+        data = subprocess.check_output(["python", handler.full_path], shell=False)
         handler.send_content(data)
 
     def test(self, handler):
@@ -62,7 +58,7 @@ class CaseExistingFile(BaseCase):
     '''文件存在'''
 
     def test(self, handler):
-        return True
+        return os.path.isfile(handler.full_path)
 
     def act(self, handler):
         self.handle_file(handler, handler.full_path)
@@ -75,7 +71,7 @@ class CaseFail(BaseCase):
         return True
 
     def act(self, handler):
-        raise ServerException("Unkonwn object '{0}'".format(handler.full_path))
+        raise ServerException("Unkonwn object '{0}'".format(handler.path))
 
 
 class CaseDirectoryIndexFile(BaseCase):
@@ -97,7 +93,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     否则返回错误页面
     '''
     Cases = [CaseNoFile(),
-             CaseCgiFile(),  # 先判断是否脚本文件，再-判断是否普通文件
+             CaseCgiFile(),  # 先判断是否脚本文件，再判断是否普通文件
              CaseExistingFile(),
              CaseDirectoryIndexFile(),
              CaseFail()]
@@ -121,7 +117,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.handle_error(msg)
 
     def handle_error(self, msg):
-        content = self.Error_Page.format(path=self.full_path, msg=msg)
+        content = self.Error_Page.format(path=self.path, msg=msg)
         self.send_content(content.encode('utf-8'), 404)
 
     def send_content(self, content, status=200):
