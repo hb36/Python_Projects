@@ -3,16 +3,19 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import datetime
 
+from .models import Post
+
 
 def index(request):
-    return render(request, 'index.html', context={
-        'title': "我的博客",
-        'welcome': "欢迎来到我的博客"
-    })
+    post_list = Post.objects.all().order_by('-created_time')
+    context = {
+        'post_list': post_list,
+    }
+    return render(request, 'blog/index.html', context)
 
 
 def hello(request):
-    return HttpResponse("hello")
+    return HttpResponse("Welcome to my blog !")
 
 
 def time(request):
