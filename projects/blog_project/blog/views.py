@@ -1,7 +1,7 @@
 # encoding:utf-8
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-import datetime
+import markdown
 
 from .models import Post
 
@@ -18,7 +18,14 @@ def hello(request):
     return HttpResponse("Welcome to my blog !")
 
 
-def time(request):
-    now = datetime.datetime.now()
-    html = "<html><body><h1>It is %s.</h1></body></html>" % now
-    return HttpResponse(html)
+def detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.body = markdown.markdown(post.body, extensions=[
+        'markdown.extensions.extra',
+        'markdown.extensions.codehilite',
+        'markdown.extensions.toc',
+    ])
+    context = {
+        'post': post,
+    }
+    return render(request, 'blog/detail.html', context)
