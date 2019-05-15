@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block main %}
+{% for post in post_list %}
+<article class="post post-1">
+    <header class="entry-header">
+        <h1 class="entry-title">
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </h1>
+    </header>
+    <div class="entry-content clearfix">
+        <div class="read-more cl-effect-14">
+            <a href="{{ post.get_absolute_url }}" class="more-link">继续阅读 <span class="meta-nav">→</span></a>
+        </div>
+    </div>
+</article>
+{% empty %}
+<div class="no-post">暂时还没有发布的文章！</div>
+{% endfor %}
+<div class="pagination"></div>
+{% endblock main %}
