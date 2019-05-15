@@ -20,12 +20,9 @@ class Tag(models.Model):
 
 class Post(models.Model):
     title = models.CharField(max_length=70)
-
     body = models.TextField()
-
     created_time = models.DateTimeField()
     modified_time = models.DateTimeField()
-
     excerpt = models.CharField(max_length=200, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     tags = models.ForeignKey(Tag, blank=True, on_delete=models.CASCADE)
@@ -36,3 +33,6 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('blog:detail', kwargs={'pk': self.pk})
+
+    class Meta:
+        ordering = ['-created_time', 'title']

@@ -8,5 +8,6 @@ django.setup()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blog/', include('blog.urls'))
+    path('blog/', include('blog.urls')),
+    path('comments/', include('comments.urls')),
 ]

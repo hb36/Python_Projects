@@ -5,7 +5,7 @@
     <header class="entry-header">
         <h1 class="entry-title">{{ post.title }}</h1>
         <div class="entry-meta">
-            <span class="post-category"><a href="#">{{ post.category.name }}</a></span>
+            <span class="post-category"><a href="#">{{ post.category.name }}</a> </span>
             <span class="post-date"><a href="#">
                 <time class="entry-date" datetime="{{ post.created_time}}">{{ post.created_time }}</time> </a> </span>
             <span class="post-author"><a href="#">{{ post.author }}</a> </span>
@@ -25,21 +25,25 @@
         <div class="row">
             <div class="col-md-4">
                 <label for="{{form.name.id_for_label}}">名字：</label>
+                <!--<input type="text" name="name">-->
                 {{ form.name }}
                 {{ form.name.errors }}
             </div>
             <div class="col-md-4">
                 <label for="{{ form.email.id_for_label }}">邮箱：</label>
+                <!--<input type="email" name="email">-->
                 {{ form.email }}
                 {{ form.email.errors }}
             </div>
             <div class="col-md-4">
                 <label for="{{ form.url.id_for_label }}">URL：</label>
+                <!--<input type="url" name="url">-->
                 {{ form.url }}
                 {{ form.url.errors }}
             </div>
             <div class="col-md-12">
                 <label for="{{ form.text.id_for_label }}">评论：</label>
+                <!--<input type="text" name="comment">-->
                 {{ form.text }}
                 {{ form.text.errors }}
                 <button type="submit" class="comment-btn">发表</button>
